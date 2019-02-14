@@ -1,0 +1,60 @@
+<script type="text/javascript">//<![CDATA[
+	function kbytesToSize(kbytes) {
+		var sizes = ['KB', 'MB', 'GB', 'TB'];
+		if (kbytes == 0) return '0 KByte';
+		var i = parseInt(Math.floor(Math.log(kbytes) / Math.log(1024)));
+		return Math.round(kbytes / Math.pow(1024, i), 2) + ' ' + sizes[i];
+	};
+
+	XHR.poll(5, '<%=url('admin/services/scst/status')%>', null,
+		function(x, st)
+		{
+			var tb = document.getElementById('scst_status_table');
+			if (st && tb)
+			{
+				/* clear all rows */
+				while( tb.rows.length > 1 )
+					tb.deleteRow(1);
+
+				for( var i = 0; i < st.length; i++ )
+				{
+					var tr = tb.insertRow(-1);
+						tr.className = 'cbi-section-table-row cbi-rowstyle-' + ((i % 2) + 1);
+
+					tr.insertCell(-1).innerHTML = st[i].id_targetname;
+					tr.insertCell(-1).innerHTML = st[i].initiator_name;
+					tr.insertCell(-1).innerHTML = st[i].ip_dir;
+					tr.insertCell(-1).innerHTML = kbytesToSize(st[i].read_kb);
+					tr.insertCell(-1).innerHTML = kbytesToSize(st[i].write_kb);
+
+				}
+
+				if( tb.rows.length == 1 )
+				{
+					var tr = tb.insertRow(-1);
+						tr.className = 'cbi-section-table-row';
+
+					var td = tr.insertCell(-1);
+						td.colSpan = 5;
+						td.innerHTML = '<em><br /><%:There are no active connections.%></em>';
+				}
+			}
+		}
+	);
+//]]></script>
+
+<fieldset class="cbi-section">
+	<legend><%:Active SCST Connections%></legend>
+	<table class="cbi-section-table" id="scst_status_table">
+		<tr class="cbi-section-table-titles">
+			<th class="cbi-section-table-cell"><%:iSCSI Target%></th>
+			<th class="cbi-section-table-cell"><%:Initiator Name%></th>
+			<th class="cbi-section-table-cell"><%:IP%></th>
+			<th class="cbi-section-table-cell"><%:Read%></th>
+			<th class="cbi-section-table-cell"><%:Write%></th>
+		</tr>
+		<tr class="cbi-section-table-row">
+			<td colspan="5"><em><br /><%:Collecting data...%></em></td>
+		</tr>
+	</table>
+</fieldset>
